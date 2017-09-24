@@ -25,6 +25,12 @@ bittrex.options({
 //  console.log( data );
 //});
 
+usdt_btc    = 0;
+btc_bat     = 0;
+
+bat_usdt    = NaN;
+prev_bat_usdt = NaN;
+
 prev_usdt_btc   = 0;
 prev_btc_bat    = 0;
 set_prev_bat_usdt = function set_prev_bat_usdt()
@@ -44,12 +50,6 @@ bittrex.getmarketsummary( { market : 'USDT-BTC'}, function( data, err ) {
   set_prev_bat_usdt();
 });
 
-
-usdt_btc    = 0;
-btc_bat     = 0;
-
-bat_usdt    = NaN;
-prev_bat_usdt = NaN;
 
 buy = function buy(order)
 {
