@@ -22,10 +22,12 @@ bittrex.options({
 //});
 
 
+
 usdt_btc    = 0;
 btc_bat     = 0;
 prev_usdt_btc   = 0;
 prev_btc_bat    = 0;
+
 
 bat_usdt    = NaN;
 prev_bat_usdt = NaN;
@@ -44,15 +46,15 @@ sell = function sell(order)
 
 orders = [];
 orders.push({
-    if: function(val) { return val < 0.19; },
-    amount: 100,
-    action: function(o) { if (false === o.placed) return buy(o); else return ''; },
+    if: function(rate) { return rate < 0.207; },
+    quantity: 100,
+    action: function(o) { return (false === o.placed) ? buy(o) : ''; },
     placed: false
     });
 orders.push({
-    if: function(val) { return val > 0.21; },
-    amount: 100,
-    action: function(o) { if (false === o.placed) return sell(o); else return ''; },
+    if: function(rate) { return rate > 0.209; },
+    quantity: 100,
+    action: function(o) { return (false === o.placed) ? sell(o) : ''; },
     placed: false
     });
 
