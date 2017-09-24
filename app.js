@@ -21,13 +21,32 @@ bittrex.options({
 //  }
 //});
 
+//bittrex.getbalances( function( data, err ) {
+//  console.log( data );
+//});
+
+prev_usdt_btc   = 0;
+prev_btc_bat    = 0;
+set_prev_bat_usdt = function set_prev_bat_usdt()
+{
+    var calc = prev_usdt_btc * prev_btc_bat;
+    if (calc != 0)
+    {
+        prev_bat_usdt = calc;
+    }    
+}
+bittrex.getmarketsummary( { market : 'BTC-BAT'}, function( data, err ) {
+  prev_btc_bat  = data.result[0].PrevDay;
+  set_prev_bat_usdt();
+});
+bittrex.getmarketsummary( { market : 'USDT-BTC'}, function( data, err ) {
+  prev_usdt_btc = data.result[0].PrevDay;
+  set_prev_bat_usdt();
+});
 
 
 usdt_btc    = 0;
 btc_bat     = 0;
-prev_usdt_btc   = 0;
-prev_btc_bat    = 0;
-
 
 bat_usdt    = NaN;
 prev_bat_usdt = NaN;
@@ -71,17 +90,10 @@ var websocketsclient = bittrex.websockets.listen( function( data ) {
             if (marketsDelta.MarketName == "USDT-BTC") 
             {
                 usdt_btc = marketsDelta.Last;
-                prev_usdt_btc = marketsDelta.PrevDay;
             }
             if (marketsDelta.MarketName == "BTC-BAT") 
             {
                 btc_bat = marketsDelta.Last;
-                prev_btc_bat = marketsDelta.PrevDay;
-            }
-            
-            if (prev_usdt_btc * prev_btc_bat != 0)
-            {
-                prev_bat_usdt = prev_usdt_btc * prev_btc_bat;
             }
             
             if (usdt_btc * btc_bat != 0)
