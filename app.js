@@ -1,7 +1,7 @@
 var express = require('express');
 var request = require('request');
 var querystring = require('querystring');
-var bittrex = require('node.bittrex.api');
+bittrex = require('node.bittrex.api');
 
 require('./keys.js');
 
@@ -54,52 +54,7 @@ bittrex.getmarketsummary( { market : 'USDT-BTC'}, function( data, err ) {
   set_prev_bat_usdt();
 });
 
-////    { success: true,
-////      message: '',
-////      result: { uuid: '  ' } }
-////    { success: false, message: '  ', result: null }
-buy = function buy(order, bid)
-{
-    bittrex.sendCustomRequest( 'https://bittrex.com/api/v1.1/market/buylimit?market=BTC-BAT&quantity='+order.quantity+'&rate='+bid+'', function( data, err ) {
-        if (data.success === true)
-        {
-            order.placed = true;
-        }
-        console.log( data );
-        console.log( err );
-        }, true );
-    
-    return "BUYING "+ order.quantity
-}
-sell = function sell(order, ask)
-{
-    bittrex.sendCustomRequest( 'https://bittrex.com/api/v1.1/market/selllimit?market=BTC-BAT&quantity='+order.quantity+'&rate='+ask+'', function( data, err ) {
-        if (data.success === true)
-        {
-            order.placed = true;
-        }
-        console.log( data );
-        console.log( err );
-        }, true );
-    
-    return "SELLING "+ order.quantity
-}
-
-
-orders = [];
-orders.push({
-    if: function(rate) { return rate < 0.205; },
-    quantity: 10,
-    action: function(o, bid) { return (false === o.placed) ? buy(o, bid) : ''; },
-    placed: false
-    });
-orders.push({
-    if: function(rate) { return rate > 0.206; },
-    quantity: 10,
-    action: function(o, ask) { return (false === o.placed) ? sell(o, ask) : ''; },
-    placed: false
-    });
-
+require('./orders.js');
 
 var websocketsclient = bittrex.websockets.listen( function( data ) {
   if (data.M === 'updateSummaryState') {
@@ -127,7 +82,8 @@ var websocketsclient = bittrex.websockets.listen( function( data ) {
                 orders.forEach(function(order) {
                     if (order.if(bat_usdt))
                     {
-                        actions += order.action(order, btc_bat);
+                        order.action(btc_bat);
+                        actions += order.message;
                     }
                 });
             }
@@ -135,11 +91,13 @@ var websocketsclient = bittrex.websockets.listen( function( data ) {
             percent = ((bat_usdt/prev_bat_usdt)-1)*100;
             
             console.log(summary, "// BAT-USDT "+ bat_usdt +" USD ("+ Math.round(percent*100)/100 +"%)", actions);
+            
         }
       });
     });
   }
 });
 
-//console.log('Listening on ' + 8080);
-//app.listen(8080);
+
+
+
