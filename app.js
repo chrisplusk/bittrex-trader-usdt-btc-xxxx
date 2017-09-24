@@ -54,12 +54,12 @@ bittrex.getmarketsummary( { market : 'USDT-BTC'}, function( data, err ) {
 buy = function buy(order)
 {
     order.placed = true;
-    return "BUYING "+ order.amount
+    return "BUYING "+ order.quantity
 }
 sell = function sell(order)
 {
     order.placed = true;
-    return "SELLING "+ order.amount
+    return "SELLING "+ order.quantity
 }
 
 
