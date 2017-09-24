@@ -1,13 +1,17 @@
 function order(o) {
-    o.market        = "BTC-BAT";
-    o.quantity      = o.quantity ? o.quantity : 0;
-    o.uuid          = null;
-    o.filled        = false;
-    o.message       = '';
-    o.limit_type    = ''; //buy or sell
+    o.market    = "BTC-BAT";
+    o.quantity  = o.quantity ? o.quantity : 0;
+    o.uuid      = null;
+    o.filled    = false;
+    o.message   = '';
+    o.type      = ''; //buy or sell
     
     o.action = function(amount) {
-        return (null === o.uuid) ? o.type(amount) : '';
+        
+        if (null === o.uuid) 
+        {
+            o.limit_type(amount)
+        }
         
         //check = function check(order)
 //{
@@ -38,17 +42,16 @@ function order(o) {
 //    }
 //}
     }
-    
-    ////    { success: true,
-    ////      message: '',
-    ////      result: { uuid: '  ' } }
-    ////    { success: false, message: '  ', result: null }
+
     o.limit = function limit(rate)
     {
         try {
-            bittrex.sendCustomRequest( 'https://bittrex.com/api/v1.1/market/'+ o.limit_type +'limit?market='+ o.market +'&quantity='+ o.quantity +'&rate='+ rate +'', function( data, err ) {
-
+            bittrex.sendCustomRequest( 'https://bittrex.com/api/v1.1/market/'+ o.type +'limit?market='+ o.market +'&quantity='+ o.quantity +'&rate='+ rate +'', function( data, err ) {
+            ////    { success: true,
+            ////      message: '',
+            ////      result: { uuid: '  ' } }
             console.log( data );
+            ////    { success: false, message: '  ', result: null }
             console.log( err );
 
             if (data != null && data.success === true)
@@ -65,7 +68,7 @@ function order(o) {
     
     o.buy = function buy(bid)
     {
-        o.limit_type = "buy";
+        o.type = "buy";
 
         o.limit(bid);
 
@@ -74,7 +77,7 @@ function order(o) {
     
     o.sell = function sell(ask)
     {
-        o.limit_type = "sell";
+        o.type = "sell";
 
         o.limit(ask);
 
@@ -90,12 +93,12 @@ orders = [];
 orders.push(order({
     if: function(rate) { return rate < 0.19; },
     quantity: 10,
-    type: function(bid) { this.buy(bid); },
+    limit_type: function(bid) { this.buy(bid); },
     }));
 
 orders.push(order({
     if: function(rate) { return rate > 0.21; },
     quantity: 10,
-    type: function(ask) { this.sell(ask); },
+    limit_type: function(ask) { this.sell(ask); },
     }));
 
