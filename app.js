@@ -47,15 +47,13 @@ orders.push({
     if: function(val) { return val < 0.19; },
     amount: 100,
     action: function(o) { if (false === o.placed) return buy(o); else return ''; },
-    placed: false,
-    output: ''
+    placed: false
     });
 orders.push({
     if: function(val) { return val > 0.21; },
     amount: 100,
     action: function(o) { if (false === o.placed) return sell(o); else return ''; },
-    placed: false,
-    output: ''
+    placed: false
     });
 
 var websocketsclient = bittrex.websockets.listen( function( data ) {
