@@ -11,7 +11,7 @@ set_prev_bat_usdt = function set_prev_bat_usdt()
     var calc = prev_usdt_btc * prev_btc_bat;
     if (calc != 0)
     {
-        prev_bat_usdt = calc;
+        currency.prev_bat_usdt = calc;
     }    
 }
 bittrex.getmarketsummary( { market : 'BTC-BAT'}, function( data, err ) {

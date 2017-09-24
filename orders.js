@@ -66,9 +66,9 @@ function order(o) {
             ////    { success: true,
             ////      message: '',
             ////      result: { uuid: '  ' } }
-            console.log( data );
+//            console.log( data );
             ////    { success: false, message: '  ', result: null }
-            console.log( err );
+//            console.log( err );
 
             if (data != null && true === data.success)
             {
@@ -115,7 +115,7 @@ orders.push(order({
     }));
 
 orders.push(order({
-    if: function(rate) { return rate.bat_usdt > 0.20; },
+    if: function(rate) { return rate.bat_usdt > 0.21; },
     quantity: 10,
     limit_type: function(ask) { this.sell(ask.btc_bat); },
     }));
