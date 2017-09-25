@@ -113,14 +113,16 @@ function order(o) {
 
 orders = [];
 
-orders.push(order({ 
+orders.push(order({
+    market: "USDT-BTC",
     if: function(rate) { return rate.bat_usdt < 0.19; },
-    quantity: 10,
-    limit_type: function(bid) { this.buy(bid.btc_bat.ask); },
+    quantity: 0.00055,
+    limit_type: function(bid) { this.buy(bid.usdt_btc.ask); },
+    post: function(result) { o = order({ market: "BTC-BAT", limit_type: function(bid) { this.buy(bid.btc_bat.ask); } }); o.quantity = result.Quantity / currency.btc_bat.ask; return o; }
     }));
 
 orders.push(order({
-    if: function(rate) { return rate.bat_usdt > 0.21; },
+    if: function(rate) { return rate.bat_usdt > 0.22; },
     quantity: 10,
     limit_type: function(ask) { this.sell(ask.btc_bat.bid); },
     post: function(result) { o = order({ market: "USDT-BTC", limit_type: function(ask) { this.sell(ask.usdt_btc.bid); } }); o.quantity = result.Price - result.CommissionPaid; return o; }
