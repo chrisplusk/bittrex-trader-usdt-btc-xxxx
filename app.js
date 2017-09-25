@@ -34,16 +34,20 @@ var websocketsclient = bittrex.websockets.listen( function( data ) {
             
             if (marketsDelta.MarketName == "USDT-BTC") 
             {
-                currency.usdt_btc = marketsDelta.Last;
+                currency.usdt_btc.last = marketsDelta.Last;
+                currency.usdt_btc.bid = marketsDelta.Bid;
+                currency.usdt_btc.ask = marketsDelta.Ask;
             }
             if (marketsDelta.MarketName == "BTC-BAT") 
             {
-                currency.btc_bat = marketsDelta.Last;
+                currency.btc_bat.last = marketsDelta.Last;
+                currency.btc_bat.bid = marketsDelta.Bid;
+                currency.btc_bat.ask = marketsDelta.Ask;
             }
             
-            if (currency.usdt_btc * currency.btc_bat != 0)
+            if (currency.usdt_btc.last * currency.btc_bat.last != 0)
             {
-                currency.bat_usdt = currency.btc_bat * currency.usdt_btc;
+                currency.bat_usdt = currency.btc_bat.last * currency.usdt_btc.last;
                 
                 orders.forEach(function(order) {
                     if (order.if(currency))

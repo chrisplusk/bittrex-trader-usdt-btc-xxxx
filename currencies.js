@@ -1,5 +1,5 @@
-usdt_btc    = 0;
-btc_bat     = 0;
+usdt_btc    = { last: 0, bid: 0, ask: 0 };
+btc_bat     = { last: 0, bid: 0, ask: 0 };
 
 bat_usdt    = NaN;
 prev_bat_usdt = NaN;
