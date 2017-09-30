@@ -10,6 +10,7 @@ var app = express();
 bittrex.options({
   'apikey' : API_KEY,
   'apisecret' : API_SECRET, 
+  'verbose' : true
 });
 
 //bittrex.getbalance({ currency : 'BAT' }, function( data, err ) {
@@ -19,54 +20,91 @@ bittrex.options({
 //  console.log( data );
 //});
 
+/*
+    TODO:
+    
+    notify x% drop vs 24hr high
+    notifications @ %+/- , @orders filled?placed
+
+	generalize for BTC-XXXX markets
+    
+    grid, realtime graphs? , timeout detector
+
+    trailing stop order : cancel function?
+    
+    disconnect/reconnect stuff
+
+    Stategy: incl transaction + btc transfer costs
+    
+*/
 
 require('./currencies.js');
 
 require('./orders.js');
 
 var websocketsclient = bittrex.websockets.listen( function( data ) {
-  if (data.M === 'updateSummaryState') {
-    data.A.forEach(function(data_for) {
-      data_for.Deltas.forEach(function(marketsDelta) {
-        if (marketsDelta.MarketName == "USDT-BTC" || marketsDelta.MarketName == "BTC-BAT")
-        {
-            var summary = marketsDelta.TimeStamp +" "+ marketsDelta.MarketName +" : "+ marketsDelta.Last +" "+ marketsDelta.Bid +" "+ marketsDelta.Ask;
-            
-            if (marketsDelta.MarketName == "USDT-BTC") 
-            {
-                currency.usdt_btc.last = marketsDelta.Last;
-                currency.usdt_btc.bid = marketsDelta.Bid;
-                currency.usdt_btc.ask = marketsDelta.Ask;
-            }
-            if (marketsDelta.MarketName == "BTC-BAT") 
-            {
-                currency.btc_bat.last = marketsDelta.Last;
-                currency.btc_bat.bid = marketsDelta.Bid;
-                currency.btc_bat.ask = marketsDelta.Ask;
-            }
-            
-            if (currency.usdt_btc.last * currency.btc_bat.last != 0)
-            {
-                currency.bat_usdt = currency.btc_bat.last * currency.usdt_btc.last;
+    if (data.M === 'updateSummaryState') {
+        data.A.forEach(function(data_for) {
+            data_for.Deltas.forEach(function(marketsDelta) {
                 
                 orders.forEach(function(order) {
-                    if (order.if(currency))
+                    
+                    if (order.market == marketsDelta.MarketName)
                     {
-                        order.action(currency);
+                        console.log( marketsDelta.TimeStamp +" "+ marketsDelta.MarketName +" : "+ marketsDelta.Last +" "+ marketsDelta.Bid +" "+ marketsDelta.Ask );
+
+                        currencies.get(marketsDelta.MarketName).update( marketsDelta );
+
+                        order.action();
                     }
+                    
                 });
-            }
-            
-            percent = ((currency.bat_usdt/currency.prev_bat_usdt)-1)*100;
-            
-            console.log(summary, "// BAT-USDT "+ currency.bat_usdt +" USD ("+ Math.round(percent*100)/100 +"%)");
-            
-        }
-      });
-    });
-  }
+
+            });
+        });
+        
+        currencies.update();
+        
+    }
 });
 
+/**
+ *  all possible serviceHandlers:
+ *  
+ *  bound: function() { console.log("Websocket bound"); },
+ *  connectFailed: function(error) { console.log("Websocket connectFailed: ", error); },
+ *  connected: function(connection) { console.log("Websocket connected"); },
+ *  disconnected: function() { console.log("Websocket disconnected"); },
+ *  onerror: function (error) { console.log("Websocket onerror: ", error); },
+ *  messageReceived: function (message) { console.log("Websocket messageReceived: ", message); return false; },
+ *  bindingError: function (error) { console.log("Websocket bindingError: ", error); },
+ *  connectionLost: function (error) { console.log("Connection Lost: ", error); },
+ *  reconnecting: function (retry { inital: true/false, count: 0} ) {
+ *      console.log("Websocket Retrying: ", retry);
+ *      //return retry.count >= 3; // cancel retry true
+ *      return true;
+ *  }
+ */
 
 
+websocketsclient.serviceHandlers.onerror = function (error) {
+  console.log('some error occured', error);
+}
+websocketsclient.serviceHandlers.connectFailed = function(error) {
+    console.log("Websocket connectFailed: ", error);
+}
+websocketsclient.serviceHandlers.disconnected = function() {
+    console.log("Websocket disconnected");
+}
+websocketsclient.serviceHandlers.bindingError = function (error) {
+    console.log("Websocket bindingError: ", error);
+}
+websocketsclient.serviceHandlers.connectionLost = function (error) {
+    console.log("Connection Lost: ", error);
+}
+websocketsclient.serviceHandlers.reconnecting = function (retry) { //retry {inital: true/false, count: 0} 
+    console.log("Websocket Retrying: ", retry);
+    //return retry.count >= 3; // cancel retry true
+    return false;
+}
 

@@ -1,31 +1,67 @@
-usdt_btc    = { last: 0, bid: 0, ask: 0 };
-btc_bat     = { last: 0, bid: 0, ask: 0 };
-
-bat_usdt    = NaN;
-prev_bat_usdt = NaN;
-
-prev_usdt_btc   = 0;
-prev_btc_bat    = 0;
-set_prev_bat_usdt = function set_prev_bat_usdt()
-{
-    var calc = prev_usdt_btc * prev_btc_bat;
-    if (calc != 0)
+function currency(c) {
+    c.last = 0;
+    c.bid = 0;
+    c.ask = 0;
+    
+    c.update = function(delta)
     {
-        currency.prev_bat_usdt = calc;
-    }    
+        this.last = delta.Last;
+        this.bid = delta.Bid;
+        this.ask = delta.Ask;
+    }
+    
+    return c;
 }
+
+
+currencies = {
+    collection:     [],
+    bat_usdt:       0,
+    previous: { bat_usdt:  0, usdt_btc: 0, btc_bat: 0 },
+    
+    get: function(market) {
+        for (var i = 0; i < this.collection.length; i++) {
+            if (this.collection[i].market == market)
+            {
+                return this.collection[i];
+            }
+        }
+    },
+    
+    update: function()
+    {
+        if (this.get("USDT-BTC").last * this.get("BTC-BAT").last != 0)
+        {
+            this.bat_usdt = this.get("BTC-BAT").last * this.get("USDT-BTC").last;
+            
+            percent = ((this.bat_usdt/this.previous.bat_usdt)-1)*100;
+
+            console.log("// BAT-USDT "+ this.bat_usdt +" USD ("+ Math.round(percent*100)/100 +"%)");
+        }
+    },
+    
+    set_previous_bat_usdt: function()
+    {
+        var calc = this.previous.usdt_btc * this.previous.btc_bat;
+        if (calc != 0)
+        {
+            this.previous.bat_usdt = calc;
+        }    
+    }
+}
+
+
+
 bittrex.getmarketsummary( { market : 'BTC-BAT'}, function( data, err ) {
-  prev_btc_bat  = data.result[0].PrevDay;
-  set_prev_bat_usdt();
+  currencies.previous.btc_bat  = data.result[0].PrevDay;
+  currencies.set_previous_bat_usdt();
 });
 bittrex.getmarketsummary( { market : 'USDT-BTC'}, function( data, err ) {
-  prev_usdt_btc = data.result[0].PrevDay;
-  set_prev_bat_usdt();
+  currencies.previous.usdt_btc = data.result[0].PrevDay;
+  currencies.set_previous_bat_usdt();
 });
 
-currency = {
-    usdt_btc: usdt_btc,
-    btc_bat: btc_bat,
-    prev_bat_usdt: prev_bat_usdt,
-    bat_usdt: bat_usdt
-}
+
+currencies.collection.push( currency({ market: 'USDT-BTC' }) );
+currencies.collection.push( currency({ market: 'BTC-BAT' }) );
+
