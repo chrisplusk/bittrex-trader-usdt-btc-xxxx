@@ -131,10 +131,12 @@ orders.push(order({
     post: function(result) { o = order({ market: "USDT-BTC", place: function() { this.sell(this.currency.bid); } }); o.quantity = result.Price - result.CommissionPaid; return o; }
     }));
 
-orders.push(order({
-    market: "BTC-BAT",
-    if: function() { return currencies.bat_usdt < this.quantity; },
-    quantity: 0.445,
-    place: function() { push( "BAT DIP < $"+ this.quantity ); },
-    }));
+
+//replace with new ath / 24h high
+orders.push(order({ market: "BTC-BAT", if: function() { return currencies.bat_usdt > this.quantity; }, quantity: 0.26, place: function() { push( "BAT PEAK > $"+ this.quantity ); }, }));
+
+orders.push(order({ market: "BTC-BAT", if: function() { return currencies.bat_usdt < this.quantity; }, quantity: 0.235, place: function() { push( "BAT DIP < $"+ this.quantity ); }, }));
+orders.push(order({ market: "BTC-BAT", if: function() { return currencies.bat_usdt < this.quantity; }, quantity: 0.225, place: function() { push( "BAT DIP < $"+ this.quantity ); }, }));
+orders.push(order({ market: "BTC-BAT", if: function() { return currencies.bat_usdt < this.quantity; }, quantity: 0.215, place: function() { push( "BAT DIP < $"+ this.quantity ); }, }));
+orders.push(order({ market: "BTC-BAT", if: function() { return currencies.bat_usdt < this.quantity; }, quantity: 0.205, place: function() { push( "BAT DIP < $"+ this.quantity ); }, }));
 

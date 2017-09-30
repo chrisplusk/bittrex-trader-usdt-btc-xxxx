@@ -42,16 +42,17 @@ bittrex.options({
     TODO:
     
     notify x% drop vs 24hr high
-    notifications @ %+/- , @orders filled?placed
-
-	generalize for BTC-XXXX markets
-    
-    grid, realtime graphs? , timeout detector
+        @ %+/-
+        //notify > create buy > create sell (set amount, no duplicates)
 
     trailing stop order : cancel function?
-    
+
+    grid, realtime graphs? , timeout detector
+
     disconnect/reconnect stuff
 
+    generalize for BTC-XXXX markets
+    
     Stategy: incl transaction + btc transfer costs
     
 */
