@@ -47,7 +47,7 @@ function order(o) {
             {
                 o.filled = true;
 
-                push("\x1b[7m FILLED "+ o.quantity +" "+ o.market+ " FOR "+ data.result.Price +" \x1b[0m");
+                push( "FILLED "+ o.quantity +" "+ o.market+ " FOR "+ data.result.Price );
 
                 if (typeof o.post === "function")
                 {
@@ -99,7 +99,7 @@ function order(o) {
 
         o.limit(bid);
 
-        push("\x1b[7m BUYING "+ o.quantity +" "+ o.market+ " FOR "+ bid +" \x1b[0m");
+        push( "BUYING "+ o.quantity +" "+ o.market+ " FOR "+ bid );
     }
     
     o.sell = function(ask)
@@ -108,7 +108,7 @@ function order(o) {
 
         o.limit(ask);
 
-        push("\x1b[7m SELLING "+ o.quantity +" "+ o.market + " FOR "+ ask +" \x1b[0m");
+        push( "SELLING "+ o.quantity +" "+ o.market + " FOR "+ ask );
     }
     return o;
 }
@@ -134,7 +134,7 @@ orders.push(order({
 orders.push(order({
     market: "BTC-BAT",
     if: function() { return currencies.bat_usdt < this.quantity; },
-    quantity: 0.245,
-    place: function() { push("\x1b[7m "+ 'BAT DIP < $'+ this.quantity +" \x1b[0m"); },
+    quantity: 0.445,
+    place: function() { push( "BAT DIP < $"+ this.quantity ); },
     }));
 

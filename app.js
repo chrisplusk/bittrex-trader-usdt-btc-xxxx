@@ -20,7 +20,7 @@ pusher.devices(function(error, response) {
 
 push = function(msg)
 {
-    console.log(msg);
+    console.log("\x1b[7m "+ msg +" \x1b[0m");
     
     pusher_devices.forEach(function(iden) { pusher.note(iden,'bittrex-trader-usdt-btc-xxxx',msg,function(error, response) {}); } );
 }
