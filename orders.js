@@ -47,7 +47,7 @@ function order(o) {
             {
                 o.filled = true;
 
-                console.log("\x1b[7m FILLED "+ o.quantity +" "+ o.market+ " FOR "+ data.result.Price +" \x1b[0m");
+                push("\x1b[7m FILLED "+ o.quantity +" "+ o.market+ " FOR "+ data.result.Price +" \x1b[0m");
 
                 if (typeof o.post === "function")
                 {
@@ -99,7 +99,7 @@ function order(o) {
 
         o.limit(bid);
 
-        console.log("\x1b[7m BUYING "+ o.quantity +" "+ o.market+ " FOR "+ bid +" \x1b[0m");
+        push("\x1b[7m BUYING "+ o.quantity +" "+ o.market+ " FOR "+ bid +" \x1b[0m");
     }
     
     o.sell = function(ask)
@@ -108,10 +108,8 @@ function order(o) {
 
         o.limit(ask);
 
-        console.log("\x1b[7m SELLING "+ o.quantity +" "+ o.market + " FOR "+ ask +" \x1b[0m");
+        push("\x1b[7m SELLING "+ o.quantity +" "+ o.market + " FOR "+ ask +" \x1b[0m");
     }
-    
-
     return o;
 }
 
@@ -131,5 +129,12 @@ orders.push(order({
     quantity: 0, //func for all? check balance?
     place: function() { this.sell(this.currency.bid); },
     post: function(result) { o = order({ market: "USDT-BTC", place: function() { this.sell(this.currency.bid); } }); o.quantity = result.Price - result.CommissionPaid; return o; }
+    }));
+
+orders.push(order({
+    market: "BTC-BAT",
+    if: function() { return currencies.bat_usdt < this.quantity; },
+    quantity: 0.245,
+    place: function() { push("\x1b[7m "+ 'BAT DIP < $'+ this.quantity +" \x1b[0m"); },
     }));
 

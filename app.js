@@ -7,6 +7,24 @@ require('./keys.js');
 
 var app = express();
 
+var PushBullet = require('pushbullet');
+var pusher = new PushBullet(PUSHBULLET_KEY);
+
+pusher_devices = [];
+
+pusher.devices(function(error, response) {
+    response.devices.forEach(function(dev) {
+        pusher_devices.push(dev.iden);
+    });
+});
+
+push = function(msg)
+{
+    console.log(msg);
+    
+    pusher_devices.forEach(function(iden) { pusher.note(iden,'bittrex-trader-usdt-btc-xxxx',msg,function(error, response) {}); } );
+}
+
 bittrex.options({
   'apikey' : API_KEY,
   'apisecret' : API_SECRET, 
