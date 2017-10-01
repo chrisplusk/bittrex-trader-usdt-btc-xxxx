@@ -15,17 +15,23 @@ function order(o) {
         o.if = function(rate) { return true; };
     }
     
+    if (typeof o.calc === "undefined")
+    {
+        o.calc = function() {};
+    }
+    
     o.action = function()
     {
         if (o.if() && false === o.placed) 
         {
+            o.calc();
             o.place();
         }
         
         if (false === o.filled && null !== o.uuid)
         {
             try {
-                bittrex.sendCustomRequest( 'https://bittrex.com/api/v1.1/account/getorder?uuid='+o.uuid, o.fill(data, err), true);
+                bittrex.sendCustomRequest( 'https://bittrex.com/api/v1.1/account/getorder?uuid='+o.uuid, o.fill(), true);
                 
                 o.filled = null; //prevent double requests and post orders
             }
@@ -117,8 +123,8 @@ orders = [];
 
 orders.push(order({
     market: "USDT-BTC",
-    if: function() { return false; /*currencies.bat_usdt < 0.19;*/ },
-    quantity: 0.00000, //calc for $100 worth
+    if: function() { return currencies.bat_usdt < 0.245; },
+    quantity: 0.00000, //calc: function() { this.quantity = 100 / this.currency.ask; },
     place: function() { this.buy(this.currency.ask); },
     post: function(result) { o = order({ market: "BTC-BAT", place: function() { this.buy(this.currency.ask); } }); o.quantity = result.Quantity / this.currency.ask; return o; }
     }));
@@ -126,7 +132,7 @@ orders.push(order({
 orders.push(order({
     market: "BTC-BAT",
     if: function() { return false; /* currencies.bat_usdt > 0.245 || this.currency.bid > 0.00006;*/ },
-    quantity: 0, //func for all? check balance?
+    quantity: 0, //calc: function() { this.quantity = //getbalance; },
     place: function() { this.sell(this.currency.bid); },
     post: function(result) { o = order({ market: "USDT-BTC", place: function() { this.sell(this.currency.bid); } }); o.quantity = result.Price - result.CommissionPaid; return o; }
     }));
