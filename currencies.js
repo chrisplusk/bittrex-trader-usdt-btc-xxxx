@@ -16,7 +16,7 @@ function currency(c) {
 
 currencies = {
     collection:     [],
-    bat_usdt:       0,
+    bat_usdt:       NaN, //keep NaN so orders aren't triggered untill this has a value!
     previous: { bat_usdt:  0, usdt_btc: 0, btc_bat: 0 },
     
     get: function(market) {
