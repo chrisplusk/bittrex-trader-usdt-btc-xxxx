@@ -41,12 +41,14 @@ bittrex.options({
 /*
     TODO:
     
+    conditional order ? to buy < or sell > if target
+    trailing stop order : cancel function?
+
     notify x% drop vs 24hr high
         @ %+/-
         //notify > create buy > create sell (set amount, no duplicates)
 
-    trailing stop order : cancel function?
-
+    
     grid, realtime graphs? , timeout detector
 
     disconnect/reconnect stuff
