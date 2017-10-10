@@ -64,4 +64,5 @@ bittrex.getmarketsummary( { market : 'USDT-BTC'}, function( data, err ) {
 
 currencies.collection.push( currency({ market: 'USDT-BTC' }) );
 currencies.collection.push( currency({ market: 'BTC-BAT' }) );
+currencies.collection.push( currency({ market: 'USDT-NEO' }) );
 
