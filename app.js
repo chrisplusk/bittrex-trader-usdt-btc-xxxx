@@ -1,7 +1,7 @@
 var express = require('express');
 var request = require('request');
 var querystring = require('querystring');
-bittrex = require('node.bittrex.api');
+bittrex = require('node-bittrex-api');
 
 require('./keys.js');
 
@@ -41,6 +41,12 @@ bittrex.options({
 /*
     TODO:
     
+    grid, realtime graphs? , timeout detector
+
+    disconnect/reconnect stuff
+
+    generalize for BTC-XXXX markets
+    
     conditional order ? to buy < or sell > if target
     trailing stop order : cancel function?
 
@@ -49,11 +55,8 @@ bittrex.options({
         //notify > create buy > create sell (set amount, no duplicates)
 
     
-    grid, realtime graphs? , timeout detector
+    
 
-    disconnect/reconnect stuff
-
-    generalize for BTC-XXXX markets
     
     Stategy: incl transaction + btc transfer costs
     
@@ -108,24 +111,24 @@ var websocketsclient = bittrex.websockets.listen( function( data ) {
  */
 
 
-websocketsclient.serviceHandlers.onerror = function (error) {
-  console.log('some error occured', error);
-}
-websocketsclient.serviceHandlers.connectFailed = function(error) {
-    console.log("Websocket connectFailed: ", error);
-}
-websocketsclient.serviceHandlers.disconnected = function() {
-    console.log("Websocket disconnected");
-}
-websocketsclient.serviceHandlers.bindingError = function (error) {
-    console.log("Websocket bindingError: ", error);
-}
-websocketsclient.serviceHandlers.connectionLost = function (error) {
-    console.log("Connection Lost: ", error);
-}
-websocketsclient.serviceHandlers.reconnecting = function (retry) { //retry {inital: true/false, count: 0} 
-    console.log("Websocket Retrying: ", retry);
-    //return retry.count >= 3; // cancel retry true
-    return false;
-}
+// websocketsclient.serviceHandlers.onerror = function (error) {
+//   console.log('some error occured', error);
+// }
+// websocketsclient.serviceHandlers.connectFailed = function(error) {
+//     console.log("Websocket connectFailed: ", error);
+// }
+// websocketsclient.serviceHandlers.disconnected = function() {
+//     console.log("Websocket disconnected");
+// }
+// websocketsclient.serviceHandlers.bindingError = function (error) {
+//     console.log("Websocket bindingError: ", error);
+// }
+// websocketsclient.serviceHandlers.connectionLost = function (error) {
+//     console.log("Connection Lost: ", error);
+// }
+// websocketsclient.serviceHandlers.reconnecting = function (retry) { //retry {inital: true/false, count: 0} 
+//     console.log("Websocket Retrying: ", retry);
+//     //return retry.count >= 3; // cancel retry true
+//     return false;
+// }
 
