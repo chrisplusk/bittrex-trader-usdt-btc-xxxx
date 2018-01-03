@@ -1,14 +1,23 @@
+require('dotenv').config();
 var express = require('express');
 var request = require('request');
 var querystring = require('querystring');
+var mysql  = require('mysql');
 bittrex = require('node-bittrex-api');
-
-require('./keys.js');
 
 var app = express();
 
+var connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'bittrex',
+    password : process.env.BITTREX_MYSQL_PASSWORD,
+    database : 'bittrex'
+  });
+  
+  connection.connect();
+
 var PushBullet = require('pushbullet');
-var pusher = new PushBullet(PUSHBULLET_KEY);
+var pusher = new PushBullet(process.env.PUSHBULLET_KEY);
 
 pusher_devices = [];
 
@@ -26,10 +35,12 @@ push = function(msg)
 }
 
 bittrex.options({
-  'apikey' : API_KEY,
-  'apisecret' : API_SECRET, 
+  'apikey' : process.env.API_KEY,
+  'apisecret' : process.env.API_SECRET, 
   'verbose' : true
 });
+
+SAT_INT_MULTIPLIER = 100000000;
 
 //bittrex.getbalance({ currency : 'BAT' }, function( data, err ) {
 //  console.log( data );
@@ -76,6 +87,17 @@ var websocketsclient = bittrex.websockets.listen( function( data ) {
                     if (order.market == marketsDelta.MarketName)
                     {
                         console.log( marketsDelta.TimeStamp +" "+ marketsDelta.MarketName +" : "+ marketsDelta.Last +" "+ marketsDelta.Bid +" "+ marketsDelta.Ask );
+
+                        var tick = {
+                            date: marketsDelta.TimeStamp,
+                            market: marketsDelta.MarketName,
+                            last: marketsDelta.Last * SAT_INT_MULTIPLIER,
+                            bid: marketsDelta.Bid * SAT_INT_MULTIPLIER,
+                            ask: marketsDelta.Ask * SAT_INT_MULTIPLIER,
+                          }
+                          connection.query('INSERT INTO ticks SET ?', tick, function (error, results, fields) {
+                            if (error) throw error;
+                          });
 
                         currencies.get(marketsDelta.MarketName).update( marketsDelta );
 
