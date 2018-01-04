@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Charts</title>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+</head>
+<body>
+
+        <div style="float: left; width: 50%; height: 50%;">
+            <canvas id="updating-chart" width="500" height="300"></canvas>
+
+        </div>
+        <div style="float: left; width: 10%; height: 50%">
+            <div id="last"></div>
+            <div id="bid"></div>
+            <div id="ask"></div>
+        </div>        
+
+  <script language="javascript">
+    var canvas = document.getElementById('updating-chart'),
+    ctx = canvas.getContext('2d'),
+    
+    config = {
+        type: 'line',
+        data: {
+            "labels": [new Date(Date.now() - (1000* 60 /*sec*/ *60 /*min*/ *10 /*hour*/)).toJSON()],
+            "datasets": [
+                {
+                    "label": "BTC-XLM",
+                    "data": [0],
+                    "fill": false,
+                    "borderColor": "rgb(75, 192, 192)",
+                    "lineTension": 0,
+                    "showLine": true }
+                ]
+            },
+        options: {
+            animation: {
+                duration: 0, // general animation time
+            },
+            hover: {
+                animationDuration: 0, // duration of animations when hovering an item
+            },
+            responsiveAnimationDuration: 0, // animation duration after a resize
+        }
+    }
+
+    var chart = new Chart(ctx, config);
+
+    updateCharts = function(){
+        
+        //get last date in chart labels
+        
+        $.ajax({
+			  url: "/getTicks",
+			  data: {
+                market: "BTC-XLM",
+                date: config.data.labels[config.data.labels.length-1]
+			  }
+			}).done(function (data) {
+                ticks = data.ticks;
+                
+                if (ticks.length > 0)
+                {
+                    start_i = 0;
+                    start_l = config.data.labels.length-1;
+
+                    if (ticks[start_i].date != config.data.labels[start_l])
+                    {
+                        for(i = start_i; i < ticks.length; i++)
+                        {
+                            for( l = start_l ; l > 0; l-- )
+                            {
+                                if (ticks[i].date == config.data.labels[l])
+                                {
+                                    start_i = i;
+                                    start_l = l;
+                                    l = 0;
+                                    i = ticks.length;
+                                }
+                            }
+                        }
+                    }
+
+                    if (start_l != config.data.labels.length-1)
+                        config.data.labels.slice(0,start_l);
+
+                    for( i = start_i ; i < ticks.length ; i++ )
+                    {
+                        config.data.labels.push(ticks[i].date);
+                        config.data.datasets[0].data.push(ticks[i].last);
+
+                        if (config.data.labels.length > 1000)
+                            config.data.labels.shift();
+                        if (config.data.datasets[0].data.length > 1000)
+                            config.data.datasets[0].data.shift();
+                    }
+
+                    chart.update();
+
+                    $('#last').html(ticks[ticks.length-1].last);
+                    $('#bid').html(ticks[ticks.length-1].bid);
+                    $('#ask').html(ticks[ticks.length-1].ask);
+
+                    document.title = $('#last').html() +' '+ $('#bid').html() +' '+ $('#ask').html();
+                }
+
+                setTimeout(updateCharts, 1*1000);
+
+            });
+
+    }
+    
+    updateCharts();
+
+
+  </script>
+
+</body>
+</html>

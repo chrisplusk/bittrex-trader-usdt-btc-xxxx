@@ -7,11 +7,15 @@ bittrex = require('node-bittrex-api');
 
 var app = express();
 
+app.use(express.static(__dirname + '/public'));
+
+
 var connection = mysql.createConnection({
     host     : 'localhost',
     user     : 'bittrex',
     password : process.env.BITTREX_MYSQL_PASSWORD,
-    database : 'bittrex'
+    database : 'bittrex',
+    dateStrings: true
   });
   
   connection.connect();
@@ -72,6 +76,41 @@ SAT_INT_MULTIPLIER = 100000000;
     Stategy: incl transaction + btc transfer costs
     
 */
+
+
+console.log('Listening on 8080');
+app.listen(8080);
+
+app.get('/getTicks', function(req, res) {
+
+    var market  = req.query.market;
+    var date    = req.query.date;
+
+    if (null == currencies.get(market))
+    {
+        res.send();
+        return false;
+    }
+
+    // if (date) //invalid
+    // {
+    //     res.send();
+    //     return false;
+    // }
+
+    connection.query('SELECT date, market, last, bid, ask FROM ticks WHERE market = ? AND date > ? ORDER BY date ASC',
+        [ market, date ],
+        function (error, results, fields) {
+            if (error) throw error;
+// console.log(this.sql);
+        res.send({
+            'ticks' : results
+        });
+        
+    });
+
+});
+
 
 require('./currencies.js');
 
